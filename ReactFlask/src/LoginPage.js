@@ -44,11 +44,11 @@ in case of a 200 we set seterror as false
 
 const handleSubmit = (e) => {
 	e.preventDefault();
-	if (username === '' ) {
+	if ((username === '' )||(password==='')) {
 	setError(true);
 	} else {
 	setSubmitted(true);
-  var fetchURL="/getPassword/" + username
+  var fetchURL="/getPassword/" + username+' '+password
   fetch(fetchURL)
 
   .then((response) => response.text())

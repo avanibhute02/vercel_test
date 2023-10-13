@@ -8,6 +8,14 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
+users  = {
+    "sophia":"harder",
+    "sah":"patches",
+}
+
+#to add a new user: user[new _username] = new_password
+
+
 # @app.route('/getLastName/<firstName>')
 # @cross_origin()
 # def hello_world(firstName):
@@ -17,12 +25,20 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 #     else:
 #         errorM = {"error": "User Not Found", "code": 404}
 #         return jsonify(errorM), 404
+
+
 @app.route('/getPassword/<username>')
 @cross_origin()
 def hello_world(username):
-    if username == "Sophia":
-        successM = {"password": "Harder", "code": 200}
-        return jsonify(successM), 200
+    words = username.split()
+
+    if words[0] in users:
+        if words[1] == users[words[0]]:
+            successM = {"password": "signed in", "code": 200}
+            return jsonify(successM), 200
+        else:
+            errorM = {"error": "Wrong password", "code": 404}
+            return jsonify(errorM), 404
     else:
         errorM = {"error": "User Not Found", "code": 404}
         return jsonify(errorM), 404
@@ -30,12 +46,15 @@ def hello_world(username):
 @app.route('/signup/<username>')
 @cross_origin()
 def new_user(username):
-    if username != "Abhay":
-        successM = {"result": "success", "code": 200}
-        return jsonify(successM), 200
-    else:
+    words = username.split()
+    if words[0] in users:
         errorM = {"error": "User already exists", "code": 404}
         return jsonify(errorM), 404
+    else :
+        users[words[0]] = words[1]
+        successM = {"result": "new user created", "code": 200}
+        return jsonify(successM), 200
+
 
 
 

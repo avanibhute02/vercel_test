@@ -25,11 +25,11 @@ const handlePassword = (e) => {
 
 const handleSubmit = (e) => {
 	e.preventDefault();
-	if (username === '' ) {
+	if ((username === '')||(password==='') ) {
 	setError(true);
 	} else {
 	setSubmitted(true);
-  var fetchURL="/signup/" + username
+  var fetchURL="/signup/" + username+' '+password
   fetch(fetchURL)
 
   .then((response) => response.text())
