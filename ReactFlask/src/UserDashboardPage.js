@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import './App.css';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
+
+//import Button from '@mui/material/Button';
+//import TextField from '@mui/material/TextField';
 
 const darkOrange = '#FF8C00';
+
+
 
 function ProjectsList({ projects }) {
   return (
@@ -51,13 +54,14 @@ function ProjectComponent({ project }) {
           />
         ))}
       </div>
-      <Button
-        sx={{ m: 2, backgroundColor: darkOrange, '&:hover': { backgroundColor: '#e57a00' } }}
-        variant="contained"
-        onClick={changeJoinState}
-      >
-        {joinText}
-      </Button>
+        <button onClick={changeJoinState}>{joinText}</button>
+      {/*<Button*/}
+      {/*  sx={{ m: 2, backgroundColor: darkOrange, '&:hover': { backgroundColor: '#e57a00' } }}*/}
+      {/*  variant="contained"*/}
+      {/*  onClick={changeJoinState}*/}
+      {/*>*/}
+      {/*  {joinText}*/}
+      {/*</Button>*/}
     </div>
   );
 }
@@ -89,30 +93,40 @@ function HardwareSet({ name, available, isJoin }) {
   return (
     <div className="flexbox-container" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
       <h3>{name}: {availableState}/{available}</h3>
-      <TextField
-        sx={{ m: 2, width: '200px' }}
-        id="outlined-basic"
-        label="Enter Quantity"
-        variant="outlined"
-        value={txtvalue}
-        onChange={(e) => { setValue(e.target.value); }}
-      />
-      <Button
-        sx={{ m: 2, backgroundColor: darkOrange, '&:hover': { backgroundColor: '#e57a00' } }}
-        onClick={(e) => { CheckIn(txtvalue); }}
-        variant="contained"
-        disabled={!isJoin}
-      >
-        Check In
-      </Button>
-      <Button
-        sx={{ m: 2, backgroundColor: darkOrange, '&:hover': { backgroundColor: '#e57a00' } }}
-        onClick={(e) => { CheckOut(txtvalue); }}
-        variant="contained"
-        disabled={!isJoin}
-      >
-        Check Out
-      </Button>
+        <input
+          type="text"
+          value={txtvalue}
+          onChange={(e) => { setValue(e.target.value); }}
+          id="amount"
+          name="amount"
+          placeholder="Amount"
+        />
+      {/*<TextField*/}
+      {/*  sx={{ m: 2, width: '200px' }}*/}
+      {/*  id="outlined-basic"*/}
+      {/*  label="Enter Quantity"*/}
+      {/*  variant="outlined"*/}
+      {/*  value={txtvalue}*/}
+      {/*  onChange={(e) => { setValue(e.target.value); }}*/}
+      {/*/>*/}
+        <button onClick={(e) => { CheckIn(txtvalue); }} disabled={!isJoin}>Check In</button>
+        <button onClick={(e) => { CheckOut(txtvalue); }} disabled={!isJoin}>Check Out</button>
+      {/*<Button*/}
+      {/*  sx={{ m: 2, backgroundColor: darkOrange, '&:hover': { backgroundColor: '#e57a00' } }}*/}
+      {/*  onClick={(e) => { CheckIn(txtvalue); }}*/}
+      {/*  variant="contained"*/}
+      {/*  disabled={!isJoin}*/}
+      {/*>*/}
+      {/*  Check In*/}
+      {/*</Button>*/}
+      {/*<Button*/}
+      {/*  sx={{ m: 2, backgroundColor: darkOrange, '&:hover': { backgroundColor: '#e57a00' } }}*/}
+      {/*  onClick={(e) => { CheckOut(txtvalue); }}*/}
+      {/*  variant="contained"*/}
+      {/*  disabled={!isJoin}*/}
+      {/*>*/}
+      {/*  Check Out*/}
+      {/*</Button>*/}
     </div>
   );
 }

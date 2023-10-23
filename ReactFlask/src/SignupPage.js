@@ -1,8 +1,10 @@
 import React, {useState} from 'react';
 import './SignupPage.css';
 import {Link} from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 export default function SignupPage() {
+    const navigate = useNavigate();
     const [username, setUsername] = useState(''); //input
     const [password, setPassword] = useState('');   //input
     const [result, setResult] = useState(''); //backend
@@ -18,10 +20,15 @@ const handleUsername = (e) => {
 	setSubmitted(false);
 };
 
+
 const handlePassword = (e) => {
 	setPassword(e.target.value);
 	setSubmitted(false);
 };
+
+const goToDashboard = () => {
+    navigate('/dashboard'); // Navigates to the '/signup' route
+  };
 
 const handleSubmit = (e) => {
 	e.preventDefault();
@@ -44,6 +51,7 @@ const handleSubmit = (e) => {
           if (data.code === 200) {
               setResult(data.result)
               setError(false);
+              goToDashboard();
           } else {
               setError(true);
               setResult("response code: " + data.code + " and message received: " + data.error);

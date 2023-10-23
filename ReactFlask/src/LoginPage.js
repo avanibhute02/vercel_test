@@ -24,6 +24,9 @@ const [error, setError] = useState(false);
     const goToSignUp = () => {
     navigate('/signup'); // Navigates to the '/signup' route
   };
+    const goToDashboard = () => {
+    navigate('/dashboard'); // Navigates to the '/signup' route
+  };
 const handleUsername = (e) => {
 	setUsername(e.target.value);
 	setSubmitted(false);
@@ -63,6 +66,7 @@ const handleSubmit = (e) => {
           if (data.code === 200) {
               setRpassword(data.password)
               setError(false);
+              goToDashboard();
           } else {
               setError(true);
               setRpassword("response code: " + data.code + " and message received: " + data.error);
