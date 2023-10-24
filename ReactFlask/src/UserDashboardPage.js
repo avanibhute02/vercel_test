@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import './App.css';
+import './Dashboard.css';
+// import './App.css'
 
 //import Button from '@mui/material/Button';
 //import TextField from '@mui/material/TextField';
+
 
 const darkOrange = '#FF8C00';
 
@@ -51,6 +53,7 @@ function ProjectComponent({ project }) {
             name={setName}
             available={project.cap[index]}
             isJoin={isJoin}
+            project={project.Name}
           />
         ))}
       </div>
@@ -66,26 +69,58 @@ function ProjectComponent({ project }) {
   );
 }
 
-function HardwareSet({ name, available, isJoin }) {
+function HardwareSet({ name, available, isJoin, project }) {
+  const [error, setError] = useState(false);
   const [txtvalue, setValue] = useState("");
   const [availableState, setAvailableState] = useState(parseInt(available, 10));
 
-  const CheckIn = (val) => {
+  const CheckIn = (val, name) => {
     if (val) {
       const parsedVal = parseInt(val, 10);
       if (!isNaN(parsedVal) && parsedVal > 0) {
         const newAvailable = availableState + parsedVal;
         setAvailableState(newAvailable <= available ? newAvailable : available);
+
+
+        var fetchURL="/checkin/" + ' '+project+' '+val.toString()+' '+name
+        fetch(fetchURL)
+
+        .then((response) => response.text())
+        .then(function(data) {
+          data = JSON.parse(data);
+
+          if (data.code === 200) {
+            setError(false);
+          } else {
+            setError(true);
+          }
+
+
+        })
       }
     }
   };
 
-  const CheckOut = (val) => {
+  const CheckOut = (val, name) => {
     if (val) {
       const parsedVal = parseInt(val, 10);
       if (!isNaN(parsedVal) && parsedVal > 0) {
         const newAvailable = availableState - parsedVal;
         setAvailableState(newAvailable >= 0 ? newAvailable : 0);
+
+        var fetchURL="/checkout/" + ' '+project+' '+val.toString()+' '+name
+        fetch(fetchURL)
+
+        .then((response) => response.text())
+        .then(function(data) {
+          data = JSON.parse(data);
+
+          if (data.code === 200) {
+            setError(false);
+          } else {
+            setError(true);
+          }
+        })
       }
     }
   };
@@ -98,7 +133,7 @@ function HardwareSet({ name, available, isJoin }) {
           value={txtvalue}
           onChange={(e) => { setValue(e.target.value); }}
           id="amount"
-          name="amount"
+          // name="amount"
           placeholder="Amount"
         />
       {/*<TextField*/}
@@ -109,8 +144,8 @@ function HardwareSet({ name, available, isJoin }) {
       {/*  value={txtvalue}*/}
       {/*  onChange={(e) => { setValue(e.target.value); }}*/}
       {/*/>*/}
-        <button onClick={(e) => { CheckIn(txtvalue); }} disabled={!isJoin}>Check In</button>
-        <button onClick={(e) => { CheckOut(txtvalue); }} disabled={!isJoin}>Check Out</button>
+        <button onClick={(e) => { CheckIn(txtvalue,name); }} disabled={!isJoin}>Check In</button>
+        <button onClick={(e) => { CheckOut(txtvalue,name); }} disabled={!isJoin}>Check Out</button>
       {/*<Button*/}
       {/*  sx={{ m: 2, backgroundColor: darkOrange, '&:hover': { backgroundColor: '#e57a00' } }}*/}
       {/*  onClick={(e) => { CheckIn(txtvalue); }}*/}
@@ -132,6 +167,8 @@ function HardwareSet({ name, available, isJoin }) {
 }
 
 function App() {
+
+
   const projects = [
     {
       Name: "1",
