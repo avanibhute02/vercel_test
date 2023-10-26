@@ -51,7 +51,8 @@ function ProjectComponent({ project }) {
           <HardwareSet
             key={index}
             name={setName}
-            available={project.cap[index]}
+            capacity={project.cap[index]}
+            available={project.sets[index]}
             isJoin={isJoin}
             project={project.Name}
           />
@@ -69,7 +70,7 @@ function ProjectComponent({ project }) {
   );
 }
 
-function HardwareSet({ name, available, isJoin, project }) {
+function HardwareSet({ name, capacity, available, isJoin, project }) {
   const [error, setError] = useState(false);
   const [txtvalue, setValue] = useState("");
   const [availableState, setAvailableState] = useState(parseInt(available, 10));
@@ -127,7 +128,7 @@ function HardwareSet({ name, available, isJoin, project }) {
 
   return (
     <div className="flexbox-container" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <h3>{name}: {availableState}/{available}</h3>
+      <h3>{name}: {availableState}/{capacity}</h3>
         <input
           type="text"
           value={txtvalue}
@@ -167,11 +168,34 @@ function HardwareSet({ name, available, isJoin, project }) {
 }
 
 function App() {
+  const [error, setError] = useState(false);
+  const [name, setName] = useState("");
+  const [users, setUsers] = useState([""]);
+
+
+  var fetchURL="/setup/"
+        fetch(fetchURL)
+
+        .then((response) => response.text())
+        .then(function(data) {
+          data = JSON.parse(data);
+
+
+          if (data.code === 200) {
+            setError(false);
+            setName(data.info.name)
+            // setUsers(data.info.users)
+          } else {
+            setError(true);
+          }
+        })
+    // data.name="hello"
+
 
 
   const projects = [
     {
-      Name: "1",
+      Name: name,
       users: ["sophia", "steve"],
       status: false,
       setNames: ["hw1", "hw2"],
@@ -188,7 +212,12 @@ function App() {
     }
   ];
 
-  return <ProjectsList projects={projects} />;
+  return (
+      // <div>{name}
+      <ProjectsList projects={projects} />
+      // </div>
+        );
+
 }
 
 export default App;
