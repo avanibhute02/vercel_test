@@ -34,6 +34,7 @@ HWSet1={
     "available": hwAvail,
     "capacity": hwCap
 
+
 }
 
 document = {
@@ -136,18 +137,20 @@ def checkout(info):
     successC = {"result": "successful checkin", "code": 200}
     return jsonify(successC), 200
 
-@app.route('/setup/')
+@app.route('/setup/<username>')
 @cross_origin()
-def setup():
+def setup(username):
+
+
     info1={
         "name":"first",
-        "users": ["sophia", "avani"],
-        "status": False,
+        "users": ["avani"],
         "sets": ["hw1", "hw2"],
         "available": [100, 100],
         "cap": [100,100]
 
     }
+    print(info1)
 
     # projects={
     #     "names": ["1"],
@@ -157,7 +160,32 @@ def setup():
     returnM = {"info": info1, "code": 200}
     return jsonify(returnM), 200
 
+@app.route('/status/<username>')
+@cross_origin()
+def stat(username):
 
+
+    info1={
+        "name":"first",
+        "users": ["sophia","avani"],
+        "sets": ["hw1", "hw2"],
+        "available": [100, 100],
+        "cap": [100,100]
+
+    }
+    if username in info1["users"]:
+        returnM = {"result": True, "code": 200}
+    else:
+        returnM = {"result": False, "code": 200}
+    print(info1)
+
+    # projects={
+    #     "names": ["1"],
+    #     "info": []
+    # }
+
+
+    return jsonify(returnM), 200
 
 
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import './Dashboard.css';
 // import './App.css'
 
@@ -27,6 +28,7 @@ function ProjectsList({ projects }) {
 }
 
 function ProjectComponent({ project }) {
+
   const [isJoin, setStatus] = useState(project.status);
   const joinText = isJoin ? "Leave" : "Join";
 
@@ -170,42 +172,92 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
 function App() {
   const [error, setError] = useState(false);
   const [name, setName] = useState("");
+  const [flag, setFlag] = useState(0);
   const [users, setUsers] = useState([""]);
+  const [sets, setSets] = useState([""]);
+  const [available, setAvailable] = useState([0]);
+  const [cap, setCap] = useState([0]);
+  const [stat, setStat] = useState(true);
+  // const [part, setPart] = useState(false);
+  const location = useLocation();
+  const username = location.state && location.state.username;
 
-
-  var fetchURL="/setup/"
-        fetch(fetchURL)
+  const getStat = () =>{
+    var fetchURL = "/status/"+username
+    fetch(fetchURL)
 
         .then((response) => response.text())
-        .then(function(data) {
+        .then(function (data) {
+          data = JSON.parse(data);
+
+
+          if (data.code === 200) {
+            if (data.result === true) {
+              setStat(true)
+            } else{
+              setStat(false)
+            }
+          } else {
+            setError(true);
+          }
+          // if(stat===0){
+          //   setPart(false)
+          // }else { setPart(true)}
+        })
+    // data.name="hello"
+
+  }
+
+  const setup = () => {
+
+    var fetchURL = "/setup/"+username
+    fetch(fetchURL)
+
+        .then((response) => response.text())
+        .then(function (data) {
           data = JSON.parse(data);
 
 
           if (data.code === 200) {
             setError(false);
             setName(data.info.name)
-            // setUsers(data.info.users)
+            setUsers(data.info.users)
+            // setStat(data.info.status)
+            setSets(data.info.sets)
+            setAvailable(data.info.available)
+            setCap(data.info.cap)
+            setFlag(1)
           } else {
             setError(true);
           }
+          // if(stat===0){
+          //   setPart(false)
+          // }else { setPart(true)}
         })
     // data.name="hello"
+  }
+  if(flag===0) {
+    setup();
+    getStat();
+  }
 
 
 
   const projects = [
     {
       Name: name,
-      users: ["sophia", "steve"],
-      status: false,
-      setNames: ["hw1", "hw2"],
-      sets: ["50", "0"],
-      cap: ["100", "100"]
+      users: users,
+      status: stat,
+      // part: part,
+      setNames: sets,
+      sets: available,
+      cap: cap
     },
       {
       Name: "2",
       users: ["neal", "anish"],
-      status: false,
+      status: 0,
+      part:false,
       setNames: ["hw1", "hw2"],
       sets: ["50", "0"],
       cap: ["100", "100"]
@@ -213,9 +265,9 @@ function App() {
   ];
 
   return (
-      // <div>{name}
+        <div>{stat.toString()}
       <ProjectsList projects={projects} />
-      // </div>
+       </div>
         );
 
 }
