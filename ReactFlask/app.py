@@ -137,56 +137,28 @@ def checkout(info):
     successC = {"result": "successful checkin", "code": 200}
     return jsonify(successC), 200
 
-@app.route('/setup/<username>')
-@cross_origin()
-def setup(username):
 
+info1={
 
-    info1={
-        "name":"first",
-        "users": ["avani"],
-        "sets": ["hw1", "hw2"],
-        "available": [100, 100],
-        "cap": [100,100]
-
-    }
-    print(info1)
-
-    # projects={
-    #     "names": ["1"],
-    #     "info": []
-    # }
-
-    returnM = {"info": info1, "code": 200}
-    return jsonify(returnM), 200
-
-@app.route('/status/<username>')
-@cross_origin()
-def stat(username):
-
-
-    info1={
         "name":"first",
         "users": ["sophia","avani"],
         "sets": ["hw1", "hw2"],
-        "available": [100, 100],
-        "cap": [100,100]
-
-    }
+        "available": ["100", "50"],
+        "cap": ["100","50"]
+}
+@app.route('/setup/<username>')
+@cross_origin()
+def setup(username):
     if username in info1["users"]:
-        returnM = {"result": True, "code": 200}
+        status = True
     else:
-        returnM = {"result": False, "code": 200}
+        status = False
+
     print(info1)
+    print(status)
 
-    # projects={
-    #     "names": ["1"],
-    #     "info": []
-    # }
-
-
+    returnM = {"info": info1,"status":status, "code": 200}
     return jsonify(returnM), 200
-
 
 
 
