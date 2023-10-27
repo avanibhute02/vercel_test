@@ -54,7 +54,8 @@ function ProjectComponent({ project }) {
             key={index}
             name={setName}
             capacity={project.cap[index]}
-            available={project.sets[index]}
+            // available={project.sets[index]}
+            available= {project.sets[index]}
             isJoin={isJoin}
             project={project.Name}
           />
@@ -74,8 +75,9 @@ function ProjectComponent({ project }) {
 
 function HardwareSet({ name, capacity, available, isJoin, project }) {
   const [error, setError] = useState(false);
+  const [flag, setFlag] = useState(0);
   const [txtvalue, setValue] = useState("");
-  const [availableState, setAvailableState] = useState(parseInt(available, 10));
+  const [availableState, setAvailableState] = useState(parseInt(available));
 
   const CheckIn = (val, name) => {
     if (val) {
@@ -128,6 +130,15 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
     }
   };
 
+  const initial = () => {
+    setAvailableState(parseInt(available))
+  }
+  if(flag===0){
+    initial();
+    setFlag(1)
+  }
+
+
   return (
     <div className="flexbox-container" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
       <h3>{name}: {availableState}/{capacity}</h3>
@@ -173,40 +184,42 @@ function App() {
   const [error, setError] = useState(false);
   const [name, setName] = useState("");
   const [flag, setFlag] = useState(0);
+  const [flag2, setFlag2] = useState(0);
   const [users, setUsers] = useState([""]);
   const [sets, setSets] = useState([""]);
-  const [available, setAvailable] = useState([0]);
+  const [available, setAvailable] = useState([""]);
   const [cap, setCap] = useState([0]);
-  const [stat, setStat] = useState(true);
+  const [stat, setStat] = useState(false);
   // const [part, setPart] = useState(false);
   const location = useLocation();
   const username = location.state && location.state.username;
 
-  const getStat = () =>{
-    var fetchURL = "/status/"+username
-    fetch(fetchURL)
-
-        .then((response) => response.text())
-        .then(function (data) {
-          data = JSON.parse(data);
-
-
-          if (data.code === 200) {
-            if (data.result === true) {
-              setStat(true)
-            } else{
-              setStat(false)
-            }
-          } else {
-            setError(true);
-          }
-          // if(stat===0){
-          //   setPart(false)
-          // }else { setPart(true)}
-        })
-    // data.name="hello"
-
-  }
+  // const getStat = () =>{
+  //   var fetchURL = "/status/"+username
+  //   fetch(fetchURL)
+  //
+  //       .then((response) => response.text())
+  //       .then(function (data) {
+  //         data = JSON.parse(data);
+  //
+  //
+  //         if (data.code === 200) {
+  //           setFlag2(1)
+  //           if (data.result === true) {
+  //             setStat(true)
+  //           } else{
+  //             setStat(false)
+  //           }
+  //         } else {
+  //           setError(true);
+  //         }
+  //         // if(stat===0){
+  //         //   setPart(false)
+  //         // }else { setPart(true)}
+  //       })
+  //   // data.name="hello"
+  //
+  // }
 
   const setup = () => {
 
@@ -222,7 +235,7 @@ function App() {
             setError(false);
             setName(data.info.name)
             setUsers(data.info.users)
-            // setStat(data.info.status)
+            setStat(data.status)
             setSets(data.info.sets)
             setAvailable(data.info.available)
             setCap(data.info.cap)
@@ -238,12 +251,14 @@ function App() {
   }
   if(flag===0) {
     setup();
-    getStat();
   }
+  // if(flag2===0){
+  //   getStat();
+  // }
 
 
 
-  const projects = [
+  var projects = [
     {
       Name: name,
       users: users,
@@ -256,8 +271,8 @@ function App() {
       {
       Name: "2",
       users: ["neal", "anish"],
-      status: 0,
-      part:false,
+      status: false,
+      // part:false,
       setNames: ["hw1", "hw2"],
       sets: ["50", "0"],
       cap: ["100", "100"]
@@ -265,7 +280,7 @@ function App() {
   ];
 
   return (
-        <div>{stat.toString()}
+        <div>{projects[0].sets}{projects[0].status.toString()}
       <ProjectsList projects={projects} />
        </div>
         );
