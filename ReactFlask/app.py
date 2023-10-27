@@ -17,17 +17,45 @@ except Exception as e:
 
 db = client.Cluster0
 userCollection = db.hardwareUser
+projectCollection= db.projects
 
-if userCollection.find_one({"username":{"$eq":"sophia"}}):
-    print("user already exists")
-else:
-    document = {"username": "sophia", "password":"harder"}
-    userCollection.insert_one(document)
+
+hwAvail={
+    "hw1":50,
+    "hw2":0
+}
+hwCap={
+    "hw1":100,
+    "hw2":100
+}
+HWSet1={
+    "users": ["sophia", "steve"],
+    "sets":["hw1", "hw2"],
+    "available": hwAvail,
+    "capacity": hwCap
+
+
+}
+
+document = {
+
+    "1": [HWSet1]
+}
+# projectCollection.insert_one(document)
+
+
+
+# if userCollection.find_one({"username":{"$eq":"sophia"}}):
+#     print("user already exists")
+# else:
+#     document = {"username": "sophia", "password":"harder"}
+#     userCollection.insert_one(document)
 
 
 app = Flask(__name__, static_folder='./build', static_url_path='/')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
+
 
 #
 # users  = {
@@ -79,6 +107,85 @@ def new_user(username):
         successM = {"result": "new user created", "code": 200}
         return jsonify(successM), 200
 
+@app.route('/checkin/<info>')
+@cross_origin()
+def checkin(info):
+    words = info.split()
+    print(words)
+    documents=projectCollection.find_one({"1": {"$exists": True}})
+    current_amount = documents["1"][0]["available"]["hw1"]
+
+    projectCollection.update_one(
+        {"1": {"$exists": True}},
+        {"$set": {words[0]+".0.available."+words[2]: current_amount+int(words[1])}}
+    )
+    successC = {"result": "successful checkin", "code": 200}
+    return jsonify(successC), 200
+
+@app.route('/checkout/<info>')
+@cross_origin()
+def checkout(info):
+    words = info.split()
+    print(words)
+    documents=projectCollection.find_one({"1": {"$exists": True}})
+    current_amount = documents["1"][0]["available"]["hw1"]
+
+    projectCollection.update_one(
+        {"1": {"$exists": True}},
+        {"$set": {words[0]+".0.available."+words[2]: current_amount-int(words[1])}}
+    )
+    successC = {"result": "successful checkin", "code": 200}
+    return jsonify(successC), 200
+
+@app.route('/setup/<username>')
+@cross_origin()
+def setup(username):
+
+
+    info1={
+        "name":"first",
+        "users": ["avani"],
+        "sets": ["hw1", "hw2"],
+        "available": [100, 100],
+        "cap": [100,100]
+
+    }
+    print(info1)
+
+    # projects={
+    #     "names": ["1"],
+    #     "info": []
+    # }
+
+    returnM = {"info": info1, "code": 200}
+    return jsonify(returnM), 200
+
+@app.route('/status/<username>')
+@cross_origin()
+def stat(username):
+
+
+    info1={
+        "name":"first",
+        "users": ["sophia","avani"],
+        "sets": ["hw1", "hw2"],
+        "available": [100, 100],
+        "cap": [100,100]
+
+    }
+    if username in info1["users"]:
+        returnM = {"result": True, "code": 200}
+    else:
+        returnM = {"result": False, "code": 200}
+    print(info1)
+
+    # projects={
+    #     "names": ["1"],
+    #     "info": []
+    # }
+
+
+    return jsonify(returnM), 200
 
 
 
