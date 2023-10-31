@@ -141,34 +141,39 @@ def new_user(username):
         successM = {"result": "new user created", "code": 200}
         return jsonify(successM), 200
 
-@app.route('/checkin/<info>')
+@app.route('/checkin/<project>/<amount>/<set>')
 @cross_origin()
-def checkin(info):
-    words = info.split()
-    print(words)
-    documents=projectCollection.find_one({"1": {"$exists": True}})
-    current_amount = documents["1"][0]["available"]["hw1"]
+def checkin(project, amount, set):
+    document = projectCollection.find_one({"name": project})
+    sets = document["sets"]
+    i = sets.index(set)
+    curr = document["available"][i]
+    new_avail = curr + int(amount)
 
     projectCollection.update_one(
-        {"1": {"$exists": True}},
-        {"$set": {words[0]+".0.available."+words[2]: current_amount+int(words[1])}}
+        document,
+        {"$set": {"available."+str(i): new_avail}}
     )
-    successC = {"result": "successful checkin", "code": 200}
+    successC = {"result": new_avail, "code": 200}
     return jsonify(successC), 200
 
-@app.route('/checkout/<info>')
+@app.route('/checkout/<project>/<amount>/<set>')
 @cross_origin()
-def checkout(info):
-    words = info.split()
-    print(words)
-    documents=projectCollection.find_one({"1": {"$exists": True}})
-    current_amount = documents["1"][0]["available"]["hw1"]
+def checkout(project, amount, set):
+    document=projectCollection.find_one({"name":project})
+    sets = document["sets"]
+    i = sets.index(set)
+    curr=document["available"][i]
+    new_avail=curr-int(amount)
+
 
     projectCollection.update_one(
-        {"1": {"$exists": True}},
-        {"$set": {words[0]+".0.available."+words[2]: current_amount-int(words[1])}}
+        document,
+        {"$set": {"available."+str(i):new_avail}}
     )
-    successC = {"result": "successful checkin", "code": 200}
+    print("available."+str(i))
+    print(new_avail)
+    successC = {"result": new_avail, "code": 200}
     return jsonify(successC), 200
 
 

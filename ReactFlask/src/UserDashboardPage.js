@@ -97,10 +97,10 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
       const parsedVal = parseInt(val, 10);
       if (!isNaN(parsedVal) && parsedVal > 0) {
         const newAvailable = availableState + parsedVal;
-        setAvailableState(newAvailable <= available ? newAvailable : available);
+        // setAvailableState(newAvailable <= available ? newAvailable : available);
 
 
-        var fetchURL="/checkin/" + ' '+project+' '+val.toString()+' '+name
+        var fetchURL="/checkin/" + project+'/'+val.toString()+'/'+name
         fetch(fetchURL)
 
         .then((response) => response.text())
@@ -108,6 +108,7 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
           data = JSON.parse(data);
 
           if (data.code === 200) {
+            setAvailableState(data.result)
             setError(false);
           } else {
             setError(true);
@@ -115,6 +116,7 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
 
 
         })
+
       }
     }
   };
@@ -124,9 +126,9 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
       const parsedVal = parseInt(val, 10);
       if (!isNaN(parsedVal) && parsedVal > 0) {
         const newAvailable = availableState - parsedVal;
-        setAvailableState(newAvailable >= 0 ? newAvailable : 0);
+        // setAvailableState(newAvailable >= 0 ? newAvailable : 0);
 
-        var fetchURL="/checkout/" + ' '+project+' '+val.toString()+' '+name
+        var fetchURL="/checkout/" + project+'/'+val.toString()+'/'+name
         fetch(fetchURL)
 
         .then((response) => response.text())
@@ -134,6 +136,7 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
           data = JSON.parse(data);
 
           if (data.code === 200) {
+            setAvailableState(data.result)
             setError(false);
           } else {
             setError(true);
