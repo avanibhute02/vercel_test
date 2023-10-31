@@ -3,15 +3,12 @@ import { useLocation } from 'react-router-dom';
 import './Dashboard.css';
 // import './App.css'
 
-//import Button from '@mui/material/Button';
-//import TextField from '@mui/material/TextField';
-
 
 const darkOrange = '#FF8C00';
 
 
 
-function ProjectsList({ projects }) {
+function ProjectsList({ projects, username}) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <h1>Projects</h1>
@@ -20,6 +17,7 @@ function ProjectsList({ projects }) {
           <ProjectComponent
             key={index}
             project={project}
+            username= {username}
           />
         ))}
       </div>
@@ -27,13 +25,34 @@ function ProjectsList({ projects }) {
   );
 }
 
-function ProjectComponent({ project }) {
+function ProjectComponent({ project,username}) {
 
   const [isJoin, setStatus] = useState(project.status);
   const joinText = isJoin ? "Leave" : "Join";
 
   const changeJoinState = () => {
     const newStatus = !isJoin;
+    if(newStatus===true){
+      var fetchURL="/join/"+username+"/"+project.Name
+        fetch(fetchURL)
+
+        .then((response) => response.text())
+        .then(function(data) {
+          data = JSON.parse(data);
+
+        })
+
+    }else{
+      var fetchURL="/leave/"+username+"/"+project.Name
+        fetch(fetchURL)
+
+        .then((response) => response.text())
+        .then(function(data) {
+          data = JSON.parse(data);
+
+        })
+
+    }
     setStatus(newStatus);
   };
 
@@ -62,13 +81,7 @@ function ProjectComponent({ project }) {
         ))}
       </div>
         <button onClick={changeJoinState}>{joinText}</button>
-      {/*<Button*/}
-      {/*  sx={{ m: 2, backgroundColor: darkOrange, '&:hover': { backgroundColor: '#e57a00' } }}*/}
-      {/*  variant="contained"*/}
-      {/*  onClick={changeJoinState}*/}
-      {/*>*/}
-      {/*  {joinText}*/}
-      {/*</Button>*/}
+
     </div>
   );
 }
@@ -150,78 +163,30 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
           // name="amount"
           placeholder="Amount"
         />
-      {/*<TextField*/}
-      {/*  sx={{ m: 2, width: '200px' }}*/}
-      {/*  id="outlined-basic"*/}
-      {/*  label="Enter Quantity"*/}
-      {/*  variant="outlined"*/}
-      {/*  value={txtvalue}*/}
-      {/*  onChange={(e) => { setValue(e.target.value); }}*/}
-      {/*/>*/}
+
         <button onClick={(e) => { CheckIn(txtvalue,name); }} disabled={!isJoin}>Check In</button>
         <button onClick={(e) => { CheckOut(txtvalue,name); }} disabled={!isJoin}>Check Out</button>
-      {/*<Button*/}
-      {/*  sx={{ m: 2, backgroundColor: darkOrange, '&:hover': { backgroundColor: '#e57a00' } }}*/}
-      {/*  onClick={(e) => { CheckIn(txtvalue); }}*/}
-      {/*  variant="contained"*/}
-      {/*  disabled={!isJoin}*/}
-      {/*>*/}
-      {/*  Check In*/}
-      {/*</Button>*/}
-      {/*<Button*/}
-      {/*  sx={{ m: 2, backgroundColor: darkOrange, '&:hover': { backgroundColor: '#e57a00' } }}*/}
-      {/*  onClick={(e) => { CheckOut(txtvalue); }}*/}
-      {/*  variant="contained"*/}
-      {/*  disabled={!isJoin}*/}
-      {/*>*/}
-      {/*  Check Out*/}
-      {/*</Button>*/}
+
     </div>
   );
 }
+
 
 function App() {
   const [error, setError] = useState(false);
   const [name, setName] = useState("");
   const [flag, setFlag] = useState(0);
   const [flag2, setFlag2] = useState(0);
-  const [users, setUsers] = useState([""]);
-  const [sets, setSets] = useState([""]);
-  const [available, setAvailable] = useState([""]);
-  const [cap, setCap] = useState([0]);
-  const [stat, setStat] = useState(false);
-  // const [part, setPart] = useState(false);
+  const [joinedA, setJoinedA] = useState("");
+  let joined = []
   const location = useLocation();
   const username = location.state && location.state.username;
+  const [projects, setProjects]=useState([])
 
-  // const getStat = () =>{
-  //   var fetchURL = "/status/"+username
-  //   fetch(fetchURL)
-  //
-  //       .then((response) => response.text())
-  //       .then(function (data) {
-  //         data = JSON.parse(data);
-  //
-  //
-  //         if (data.code === 200) {
-  //           setFlag2(1)
-  //           if (data.result === true) {
-  //             setStat(true)
-  //           } else{
-  //             setStat(false)
-  //           }
-  //         } else {
-  //           setError(true);
-  //         }
-  //         // if(stat===0){
-  //         //   setPart(false)
-  //         // }else { setPart(true)}
-  //       })
-  //   // data.name="hello"
-  //
-  // }
 
   const setup = () => {
+
+
 
     var fetchURL = "/setup/"+username
     fetch(fetchURL)
@@ -233,55 +198,74 @@ function App() {
 
           if (data.code === 200) {
             setError(false);
-            setName(data.info.name)
-            setUsers(data.info.users)
-            setStat(data.status)
-            setSets(data.info.sets)
-            setAvailable(data.info.available)
-            setCap(data.info.cap)
             setFlag(1)
+            joined.push(data.joinedP)
+            // setJoined(data.joinedP)
+            let temp=[...projects];
+            for(let i=0; i<joined.length; i++){
+              var fetchURL="/projects/"+username+"/"+joined[i]
+              fetch(fetchURL)
+
+              .then((response) => response.text())
+              .then(function(data1) {
+                data1 = JSON.parse(data1);
+                setJoinedA(data1)
+
+                if (data1.code === 200) {
+                  setError(false);
+                  var newProject = {
+                    Name: joined[i],
+                    users: data1.info.users,
+                    status: true,
+                    setNames: data1.info.sets,
+                    sets: data1.info.available,
+                    cap: data1.info.cap
+                    // Name: joined[i],
+                    // users: data1.users,
+                    // status: true,
+                    // setNames: data1.sets,
+                    // sets: data1.available,
+                    // cap: data1.cap
+                  };
+                  // setProjects(prevProjects => [...prevProjects, ...newProject]);
+
+                  temp.push(newProject);
+                  setProjects(temp)
+                  setJoinedA(0)
+                  // projects.push(newProject)
+
+                } else {
+                  setError(true);
+                }
+              })
+            }
           } else {
             setError(true);
           }
-          // if(stat===0){
-          //   setPart(false)
-          // }else { setPart(true)}
         })
-    // data.name="hello"
+
   }
   if(flag===0) {
     setup();
   }
-  // if(flag2===0){
-  //   getStat();
-  // }
 
 
 
-  var projects = [
-    {
-      Name: name,
-      users: users,
-      status: stat,
-      // part: part,
-      setNames: sets,
-      sets: available,
-      cap: cap
-    },
-      {
-      Name: "2",
-      users: ["neal", "anish"],
-      status: false,
-      // part:false,
-      setNames: ["hw1", "hw2"],
-      sets: ["50", "0"],
-      cap: ["100", "100"]
-    }
-  ];
+  // var projects = [
+  //     {
+  //     Name: "2",
+  //     users: ["neal", "anish"],
+  //     status: false,
+  //     // part:false,
+  //     setNames: ["hw1", "hw2"],
+  //     sets: ["50", "0"],
+  //     cap: ["100", "100"]
+  //   }
+  // ];
 
   return (
-        <div>{projects[0].sets}{projects[0].status.toString()}
-      <ProjectsList projects={projects} />
+        <div>
+          <ProjectsList projects={projects} username={username} />
        </div>
         );
 

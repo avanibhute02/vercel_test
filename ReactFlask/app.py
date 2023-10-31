@@ -36,11 +36,8 @@ HWSet1={
 
 
 }
-
-document = {
-
-    "1": [HWSet1]
-}
+document = {"name": "1", "users": ["sophia", "avani"], "sets": ["hw1", "hw2"], "available":[50, 20], "cap":[100,50]}
+# projectCollection.insert_one(document)
 # projectCollection.insert_one(document)
 
 
@@ -93,6 +90,43 @@ def hello_world(username):
         errorM = {"error": "User Not Found", "code": 404}
         return jsonify(errorM), 404
 
+@app.route('/join/<username>/<projectID>')
+@cross_origin()
+def join_project(username, projectID):
+    user_document = userCollection.find_one({"username": username})
+
+    if user_document and projectID in user_document.get('projects',[]):
+        errorM = {"result": "Already Joined", "code": 200}
+        print(errorM)
+        return jsonify(errorM), 404
+    else :
+        userCollection.update_one(
+            {'username': username},
+            {'$push': {'projects': projectID}}
+        )
+        successM = {"result": "Joined", "code": 200}
+        print(successM)
+        return jsonify(successM), 200
+
+@app.route('/leave/<username>/<projectID>')
+@cross_origin()
+def leave_project(username, projectID):
+    user_document = userCollection.find_one({"username": username})
+
+    if user_document and projectID in user_document.get('projects',[]):
+        userCollection.update_one(
+            {'username': username},
+            {'$pull': {'projects': projectID}}
+        )
+        successM = {"result": "Left", "code": 200}
+        print(successM)
+        return jsonify(successM), 200
+    else :
+        errorM = {"result": "Not part of project", "code": 200}
+        print(errorM)
+        return jsonify(errorM), 404
+
+
 @app.route('/signup/<username>')
 @cross_origin()
 def new_user(username):
@@ -102,7 +136,7 @@ def new_user(username):
         errorM = {"error": "User already exists", "code": 404}
         return jsonify(errorM), 404
     else :
-        document = {"username": words[0], "password": words[1]}
+        document = {"username": words[0], "password": words[1], "projects":[]}
         userCollection.insert_one(document)
         successM = {"result": "new user created", "code": 200}
         return jsonify(successM), 200
@@ -140,25 +174,47 @@ def checkout(info):
 
 info1={
 
-        "name":"first",
-        "users": ["sophia","avani"],
-        "sets": ["hw1", "hw2"],
-        "available": ["100", "50"],
-        "cap": ["100","50"]
+        "name":"",
+        "users": ["avani"],
+        "sets": ["hw1"],
+        "available": [0],
+        "cap": [50]
 }
 @app.route('/setup/<username>')
 @cross_origin()
 def setup(username):
     if username in info1["users"]:
         status = True
+
     else:
         status = False
+    # documents = projectCollection.find
+    # info1["name"]=document[]
+    user_document = userCollection.find_one({"username": username})
+    projects = user_document["projects"]
+    print(projects)
 
     print(info1)
     print(status)
 
-    returnM = {"info": info1,"status":status, "code": 200}
+    returnM = {"info": info1,"status":status,"joinedP":projects,"code": 200}
     return jsonify(returnM), 200
+
+
+@app.route('/projects/<username>/<projectID>')
+@cross_origin()
+def getInfo(username, projectID):
+
+    project_document=projectCollection.find_one({"name":projectID})
+    info = {"users": project_document["users"],
+            "sets": project_document["sets"],
+            "available": project_document["available"],
+            "cap": project_document["cap"]}
+    print(info)
+    returnM = {"info": info, "code": 200}
+    return jsonify(returnM), 200
+
+
 
 
 
