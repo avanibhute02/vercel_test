@@ -149,12 +149,17 @@ def checkin(project, amount, set):
     i = sets.index(set)
     curr = document["available"][i]
     new_avail = curr + int(amount)
+    cap=document["cap"][i]
+    if(new_avail>cap):
+        successC={"result":"more than cap", "code":400}
 
-    projectCollection.update_one(
+    else:
+
+        projectCollection.update_one(
         document,
         {"$set": {"available."+str(i): new_avail}}
-    )
-    successC = {"result": new_avail, "code": 200}
+        )
+        successC = {"result": new_avail, "code": 200}
     return jsonify(successC), 200
 
 @app.route('/checkout/<project>/<amount>/<set>')
@@ -166,14 +171,17 @@ def checkout(project, amount, set):
     curr=document["available"][i]
     new_avail=curr-int(amount)
 
+    if (new_avail < 0):
+        successC = {"result": "more than available", "code": 400}
 
-    projectCollection.update_one(
-        document,
-        {"$set": {"available."+str(i):new_avail}}
-    )
-    print("available."+str(i))
-    print(new_avail)
-    successC = {"result": new_avail, "code": 200}
+    else:
+        projectCollection.update_one(
+            document,
+            {"$set": {"available."+str(i):new_avail}}
+        )
+        print("available."+str(i))
+        print(new_avail)
+        successC = {"result": new_avail, "code": 200}
     return jsonify(successC), 200
 
 

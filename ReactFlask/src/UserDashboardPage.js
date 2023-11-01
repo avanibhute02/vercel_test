@@ -92,6 +92,17 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
   const [txtvalue, setValue] = useState("");
   const [availableState, setAvailableState] = useState(parseInt(available));
 
+  const [message, setMessage] = useState(0);
+  const [words, setWords] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
+  const openPopup = () => {
+    setShowPopup(true);
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+  };
+
   const CheckIn = (val, name) => {
     if (val) {
       const parsedVal = parseInt(val, 10);
@@ -110,7 +121,12 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
           if (data.code === 200) {
             setAvailableState(data.result)
             setError(false);
-          } else {
+          } else if (data.code ===400){
+            setMessage(val);
+            setWords(' is not a valid quantity')
+            openPopup();
+
+          }else{
             setError(true);
           }
 
@@ -138,7 +154,12 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
           if (data.code === 200) {
             setAvailableState(data.result)
             setError(false);
-          } else {
+          } else if (data.code ===400){
+            setMessage(val);
+            setWords(' is not a valid quantity')
+            openPopup();
+
+          }else{
             setError(true);
           }
         })
@@ -166,6 +187,16 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
           // name="amount"
           placeholder="Amount"
         />
+      {showPopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <span className="close" onClick={closePopup}>
+              &times;
+            </span>
+            <p>{message}{words}</p>
+          </div>
+        </div>
+      )}
 
         <button onClick={(e) => { CheckIn(txtvalue,name); }} disabled={!isJoin}>Check In</button>
         <button onClick={(e) => { CheckOut(txtvalue,name); }} disabled={!isJoin}>Check Out</button>
