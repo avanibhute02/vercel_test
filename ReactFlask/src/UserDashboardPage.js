@@ -212,73 +212,81 @@ function App() {
   const [flag, setFlag] = useState(0);
   const [flag2, setFlag2] = useState(0);
   const [joinedA, setJoinedA] = useState("");
-  let joined = []
+  const [joinedLen, setJoinedLen] = useState(0);
+  const [pushed, setPushed] = useState(0);
+  const [dataB, setDataB]=useState(['']);
+  const [joinedArray, setJoinedArray]=useState([])
+  // let joined = []
   const location = useLocation();
   const username = location.state && location.state.username;
   const [projects, setProjects]=useState([])
 
+  const addItemToJoined = (item) => {
+    setJoinedArray(prevArray => [...prevArray, item]); // Using spread syntax to create a new array with the new item
+  };
 
-  const setup = () => {
-
-
-
-    var fetchURL = "/setup/"+username
-    fetch(fetchURL)
-
-        .then((response) => response.text())
-        .then(function (data) {
-          data = JSON.parse(data);
+  const addItemToProject = (item) => {
+    setProjects(prevArray => [...prevArray, item]); // Using spread syntax to create a new array with the new item
+  };
 
 
-          if (data.code === 200) {
-            setError(false);
-            setFlag(1)
-            joined.push(data.joinedP)
-            // setJoined(data.joinedP)
-            let temp=[...projects];
-            for(let i=0; i<joined.length; i++){
-              var fetchURL="/projects/"+username+"/"+joined[i]
-              fetch(fetchURL)
+  const getproject = async (project) => {
+  try {
+    const fetchURL = "/projects/" + username + "/" + project;
+    const response = await fetch(fetchURL);
+    const data1 = await response.json();
 
-              .then((response) => response.text())
-              .then(function(data1) {
-                data1 = JSON.parse(data1);
-                setJoinedA(data1)
+    if (data1.code === 200) {
+      setError(false);
+      const newProject = {
+        Name: project,
+        users: data1.info.users,
+        status: true,
+        setNames: data1.info.sets,
+        sets: data1.info.available,
+        cap: data1.info.cap
+      };
 
-                if (data1.code === 200) {
-                  setError(false);
-                  var newProject = {
-                    Name: joined[i],
-                    users: data1.info.users,
-                    status: true,
-                    setNames: data1.info.sets,
-                    sets: data1.info.available,
-                    cap: data1.info.cap
-                    // Name: joined[i],
-                    // users: data1.users,
-                    // status: true,
-                    // setNames: data1.sets,
-                    // sets: data1.available,
-                    // cap: data1.cap
-                  };
-                  // setProjects(prevProjects => [...prevProjects, ...newProject]);
-
-                  temp.push(newProject);
-                  setProjects(temp)
-                  setJoinedA(0)
-                  // projects.push(newProject)
-
-                } else {
-                  setError(true);
-                }
-              })
-            }
-          } else {
-            setError(true);
-          }
-        })
-
+      addItemToProject(newProject);
+      setJoinedA(joinedA + 1);
+    } else {
+      setError(true);
+    }
+  } catch (error) {
+    setError(true);
+    // Handle errors here
   }
+};
+
+
+
+const setup = async () => {
+  try {
+    const fetchURL = "/setup/" + username;
+    const response = await fetch(fetchURL);
+    const data = await response.json();
+
+    if (data.code === 200) {
+      setError(false);
+      setFlag(1);
+      const joinedLength = data.joinedP.length; // Capture the length directly
+
+      for (let i = 0; i < joinedLength; i++) {
+        addItemToJoined(data.joinedP[i]);
+        setPushed(prevPushed => prevPushed + 1);
+      }
+
+      for (let i = 0; i < joinedLength; i++) {
+        await getproject(data.joinedP[i]);
+      }
+    } else {
+      setError(true);
+    }
+  } catch (error) {
+    setError(true);
+    // Handle errors here
+  }
+};
   if(flag===0) {
     setup();
   }
