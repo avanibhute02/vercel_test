@@ -3,8 +3,7 @@ import { useLocation } from 'react-router-dom';
 import './Dashboard.css';
 // import './App.css'
 
-
-const darkOrange = '#FF8C00';
+const grey = '#CCCCCC';
 
 
 
@@ -59,8 +58,8 @@ function ProjectComponent({ project,username}) {
   return (
     <div className="bigbox" style={{
       backgroundColor: isJoin ? '#52a86b' : '',
-      border: `5px solid ${darkOrange}`,
-      borderRadius: '5px',
+      border: `2px solid ${grey}`,
+      borderRadius: '0px',
       padding: '10px',
       maxWidth: '50%',
       overflow: 'auto',

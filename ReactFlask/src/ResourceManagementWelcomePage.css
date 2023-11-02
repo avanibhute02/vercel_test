@@ -12,7 +12,7 @@ body, html {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  /*box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);*/
 }
 
 h1 {
@@ -28,9 +28,9 @@ h1 {
 
 .new-project, .existing-project {
   width: 45%;
-  padding: 10px;
+  padding: 30px;
   border: 1px solid #ccc;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  /*box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);*/
 }
 
 h2 {
@@ -129,4 +129,22 @@ button {
 
 button:hover {
   background-color: #0056b3;
+}
+
+.next-button {
+  position: fixed; /* Fixed position */
+  bottom: 20px;    /* 20px from the bottom */
+  right: 20px;     /* 20px from the right */
+  padding: 10px 20px; /* Padding for the button */
+  font-size: 16px; /* Font size for the text inside the button */
+  background-color: #007BFF; /* Background color */
+  color: white;    /* Text color */
+  border: none;
+  border-radius: 5px; /* Rounded borders */
+  transition: background-color 0.3s ease;
+  width: auto; /* Override any inherited width */
+}
+
+.next-button:hover {
+  background-color: #0056b3; /* Darker background on hover */
 }
