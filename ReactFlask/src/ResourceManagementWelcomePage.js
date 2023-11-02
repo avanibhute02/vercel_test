@@ -23,52 +23,7 @@ function App() {
           <button>Search</button>
         </div>
       </div>
-    </div>
-  );
-}
-
-export default App;
-
-import React from 'react';
-import './App1.css';
-
-function App() {
-  return (
-    <div className="container">
-      <h1>Resource Management</h1>
-      <div className="resource-section">
-
-        <div className="resource-row">
-          <div className="header">
-            <span>Capacity</span>
-          </div>
-          <div className="header">
-            <span>Available</span>
-          </div>
-          <div className="header">
-            <span>Request</span>
-          </div>
-        </div>
-
-        <div className="resource-row">
-          <span>HW Set 1:</span>
-          <input type="text" />
-          <input type="text" />
-          <input type="text" />
-        </div>
-
-        <div className="resource-row">
-          <span>HW Set 2:</span>
-          <input type="text" />
-          <input type="text" />
-          <input type="text" />
-        </div>
-
-        <div className="buttons">
-          <button>Check In</button>
-          <button>Check Out</button>
-        </div>
-      </div>
+      <button className="next-button">Next</button>
     </div>
   );
 }

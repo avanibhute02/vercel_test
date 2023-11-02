@@ -8,6 +8,7 @@ import SignupPage from './SignupPage';
 import reportWebVitals from './reportWebVitals';
 import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import UserDashboardPage from "./UserDashboardPage";
+import ResourceManagementWelcomePage from "./ResourceManagementWelcomePage";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -16,6 +17,7 @@ root.render(
         <Routes>
                 <Route path="/" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
+                <Route path="/createandjoin" element={<ResourceManagementWelcomePage />} />
                 <Route path="/dashboard" element={<UserDashboardPage />} />
             </Routes>
         </Router>

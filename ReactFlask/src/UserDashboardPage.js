@@ -290,20 +290,6 @@ const setup = async () => {
     setup();
   }
 
-
-
-  // var projects = [
-  //     {
-  //     Name: "2",
-  //     users: ["neal", "anish"],
-  //     status: false,
-  //     // part:false,
-  //     setNames: ["hw1", "hw2"],
-  //     sets: ["50", "0"],
-  //     cap: ["100", "100"]
-  //   }
-  // ];
-
   return (
         <div>
           <ProjectsList projects={projects} username={username} />
