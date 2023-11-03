@@ -1,22 +1,55 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useLocation } from 'react-router-dom';
 import './Dashboard.css';
+import {calculateNewValue} from "@testing-library/user-event/dist/utils";
 // import './App.css'
 
 const grey = '#CCCCCC';
 
 
 
-function ProjectsList({ projects, username}) {
+function ProjectsList({ projects, username, availableArray, capArray}) {
+  const [available, setAvailable] = useState([0, 0]);
+  const [cap, setCap] = useState([0, 0]);
+
+  useEffect(() => {
+    // Updating state when the availableArray and capArray change
+    if (capArray.length > 1 && availableArray.length > 1) {
+      setCap(prevCap => [capArray[0], capArray[1]]); // Assuming capArray has at least 2 items
+      setAvailable(prevAvailable => [availableArray[0], availableArray[1]]); // Assuming availableArray has at least 2 items
+    }
+  }, [availableArray, capArray]);
+  const updateAvailable = (newAvailable, idx) => {
+    if(idx===0) {
+      setAvailable(prevAvailable => [newAvailable, availableArray[1]]);
+
+    }else{
+      setAvailable(prevAvailable => [prevAvailable[0], newAvailable]);
+
+    }
+  };
+
+
+  // const updateProjects = (available, cap) => {
+  //   const updatedProjects = projects.map((project) => {
+  //     if (project.Name === updatedProject.Name) {
+  //       return updatedProject;
+  //     }
+  //     return project;
+  //   });
+  //   setProjects(updatedProjects);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <h1>{username}'s Projects</h1>
+      <h2>HW1: {available[0]}/{cap[0]} HW2: {available[1]}/{cap[1]}</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {projects.map((project, index) => (
           <ProjectComponent
             key={index}
             project={project}
             username= {username}
+            updateAvailable={updateAvailable}
+            // updateProjects={updateProjects}
           />
         ))}
       </div>
@@ -24,7 +57,7 @@ function ProjectsList({ projects, username}) {
   );
 }
 
-function ProjectComponent({ project,username}) {
+function ProjectComponent({ project,username, updateAvailable}) {
 
   const [isJoin, setStatus] = useState(project.status);
   const joinText = isJoin ? "Leave" : "Join";
@@ -72,24 +105,29 @@ function ProjectComponent({ project,username}) {
             key={index}
             name={setName}
             capacity={project.cap[index]}
+            updateAvailable={updateAvailable}
             // available={project.sets[index]}
-            available= {project.sets[index]}
+
+            available= {project.available[index]}
+            checked = {project.checked[index]}
             isJoin={isJoin}
             project={project.Name}
           />
         ))}
       </div>
         {/*<button onClick={changeJoinState}>{joinText}</button>*/}
+      <p >Project Description: {project.description}</p>
 
     </div>
   );
 }
 
-function HardwareSet({ name, capacity, available, isJoin, project }) {
+function HardwareSet({ name, capacity, available, checked, isJoin, project, updateAvailable }) {
   const [error, setError] = useState(false);
   const [flag, setFlag] = useState(0);
   const [txtvalue, setValue] = useState("");
   const [availableState, setAvailableState] = useState(parseInt(available));
+  const [checkedState, setCheckedState] = useState(parseInt(checked));
 
   const [message, setMessage] = useState(0);
   const [words, setWords] = useState('');
@@ -105,32 +143,45 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
   const CheckIn = (val, name) => {
     if (val) {
       const parsedVal = parseInt(val, 10);
+      // const checkedParsedVal = parseInt(checkVal, 10);
       if (!isNaN(parsedVal) && parsedVal > 0) {
         const newAvailable = availableState + parsedVal;
+        const newChecked = checkedState - parsedVal;
         // setAvailableState(newAvailable <= available ? newAvailable : available);
 
+        if(newChecked>=0) {
+          var fetchURL = "/checkin/" + project + '/' + val.toString() + '/' + name
+          fetch(fetchURL)
 
-        var fetchURL="/checkin/" + project+'/'+val.toString()+'/'+name
-        fetch(fetchURL)
+              .then((response) => response.text())
+              .then(function (data) {
+                data = JSON.parse(data);
 
-        .then((response) => response.text())
-        .then(function(data) {
-          data = JSON.parse(data);
+                if (data.code === 200) {
+                  setCheckedState(newChecked)
+                  if(name==="hw1"){
+                    updateAvailable(data.setAvailable,0)
+                  }else{
+                    updateAvailable(data.setAvailable,1)
+                  }
+                  setAvailableState(data.result)
+                  setError(false);
+                } else if (data.code === 400) {
+                  setMessage(val);
+                  setWords(' is not a valid quantity')
+                  openPopup();
 
-          if (data.code === 200) {
-            setAvailableState(data.result)
-            setError(false);
-          } else if (data.code ===400){
-            setMessage(val);
-            setWords(' is not a valid quantity')
-            openPopup();
-
-          }else{
-            setError(true);
-          }
+                } else {
+                  setError(true);
+                }
 
 
-        })
+              })
+        }else{
+          setMessage(val);
+          setWords(' is not a valid quantity')
+          openPopup();
+        }
 
       }
     }
@@ -139,33 +190,49 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
   const CheckOut = (val, name) => {
     if (val) {
       const parsedVal = parseInt(val, 10);
+      // const checkedParsedVal = parseInt(checkVal, 10);
       if (!isNaN(parsedVal) && parsedVal > 0) {
         const newAvailable = availableState - parsedVal;
-        // setAvailableState(newAvailable >= 0 ? newAvailable : 0);
+        const newChecked = checkedState + parsedVal;
+        // setAvailableState(newAvailable <= available ? newAvailable : available);
 
-        var fetchURL="/checkout/" + project+'/'+val.toString()+'/'+name
-        fetch(fetchURL)
+        // if(newAvailable<0) {
+          var fetchURL = "/checkout/" + project + '/' + val.toString() + '/' + name
+          fetch(fetchURL)
 
-        .then((response) => response.text())
-        .then(function(data) {
-          data = JSON.parse(data);
+              .then((response) => response.text())
+              .then(function (data) {
+                data = JSON.parse(data);
 
-          if (data.code === 200) {
-            setAvailableState(data.result)
-            setError(false);
-          } else if (data.code ===400){
-            setMessage(val);
-            setWords(' is not a valid quantity')
-            openPopup();
+                if (data.code === 200) {
+                  setCheckedState(newChecked)
+                  if(name==="hw1"){
+                    updateAvailable(data.setAvailable,0)
+                  }else{
+                    updateAvailable(data.setAvailable,1)
+                  }
+                  setAvailableState(data.available)
+                  setError(false);
+                } else if (data.code === 404) {
+                  setMessage(val);
+                  setWords(' is not a valid quantity')
+                  openPopup();
 
-          }else{
-            setError(true);
-          }
-        })
+                } else {
+                  setError(true);
+                }
+
+
+              })
+        // }else{
+        //   setMessage(val);
+        //   setWords(' is not a valid quantity')
+        //   openPopup();
+        // }
+
       }
     }
   };
-
   const initial = () => {
     setAvailableState(parseInt(available))
   }
@@ -177,7 +244,7 @@ function HardwareSet({ name, capacity, available, isJoin, project }) {
 
   return (
     <div className="flexbox-container" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <h3>{name}: {availableState}/{capacity}</h3>
+      <h3>{name} checked out: {checkedState}</h3>
         <input
           type="text"
           value={txtvalue}
@@ -216,6 +283,8 @@ function App() {
   const [dataB, setDataB]=useState(['']);
   const [joinedArray, setJoinedArray]=useState([])
   // let joined = []
+  const [available, setAvailable]=useState([])
+  const [cap, setCap]=useState([])
   const location = useLocation();
   const username = location.state && location.state.username;
   const [projects, setProjects]=useState([])
@@ -227,6 +296,15 @@ function App() {
   const addItemToProject = (item) => {
     setProjects(prevArray => [...prevArray, item]); // Using spread syntax to create a new array with the new item
   };
+  const addAvaialable = (item) => {
+    setAvailable(prevArray => [...prevArray, item]); // Using spread syntax to create a new array with the new item
+  };
+
+  const addCap = (item) => {
+    setCap(prevArray => [...prevArray, item]); // Using spread syntax to create a new array with the new item
+  };
+
+
 
 
   const getproject = async (project) => {
@@ -241,9 +319,11 @@ function App() {
         Name: project,
         users: data1.info.users,
         status: true,
-        setNames: data1.info.sets,
-        sets: data1.info.available,
-        cap: data1.info.cap
+        setNames: ["hw1", 'hw2'],
+        available: data1.info.available,
+        cap: data1.info.cap,
+        checked: data1.info.checked,
+        description: data1.info.description
       };
 
       addItemToProject(newProject);
@@ -278,6 +358,8 @@ const setup = async () => {
       for (let i = 0; i < joinedLength; i++) {
         await getproject(data.joinedP[i]);
       }
+      setCap(data.cap);
+      setAvailable(data.available);
     } else {
       setError(true);
     }
@@ -290,9 +372,11 @@ const setup = async () => {
     setup();
   }
 
+
+
   return (
         <div>
-          <ProjectsList projects={projects} username={username} />
+          <ProjectsList projects={projects} username={username} availableArray={available} capArray={cap}/>
        </div>
         );
 

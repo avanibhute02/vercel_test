@@ -11,8 +11,8 @@ export default function App(){
   const username = location.state && location.state.username;
   const [id, setID] = useState(''); //input
   const [projectID, setProjectID] = useState(''); //input
-  const [names, setNames] = useState(''); //input
-  const [available, setAvailable] = useState(''); //input
+
+  const [description, setDescription] = useState(''); //input
   const [message, setMessage] = useState(''); //input
   const [showPopup, setShowPopup] = useState(false);
   const openPopup = () => {
@@ -30,12 +30,10 @@ export default function App(){
   const handleID = (e) => {
 	setID(e.target.value);
   };
-  const handleSetNames = (e) => {
-	setNames(e.target.value);
+  const handleDescription = (e) => {
+	setDescription(e.target.value);
   };
-  const handleAvailable = (e) => {
-	setAvailable(e.target.value);
-  };
+
   const handleProjectID = (e) => {
 	setProjectID(e.target.value);
   };
@@ -44,12 +42,12 @@ export default function App(){
 
   const handleCreate = (e) => {
       e.preventDefault();
-      if ((id === '' )||(names==='')||(available==='')) {
+      if ((id === '' )||(description==='')) {
        setMessage("Fill All Fields")
         openPopup()
       } else {
 
-    var fetchURL="/create-project/" + id+'/'+names+'/'+available+'/'+username
+    var fetchURL="/create-project/" + id+'/'+description+'/'+username
     fetch(fetchURL)
 
     .then((response) => response.text())
@@ -113,10 +111,8 @@ export default function App(){
           <h2>Create New Project</h2>
           <label>Project ID:</label>
           <input id = "id" onChange={handleID} type="text" />
-          <label>Set Names:</label>
-          <input id = "setNames" onChange={handleSetNames} type="text" />
-          <label>Available Per Set:</label>
-          <input id = "available" onChange={handleAvailable} type="text" />
+          <label>Description:</label>
+          <input id = "description" onChange={handleDescription} type="text" />
           <button onClick={handleCreate}>Create</button>
         </div>
         {showPopup && (
