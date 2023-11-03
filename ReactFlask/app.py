@@ -227,6 +227,55 @@ def getInfo(username, projectID):
     returnM = {"info": info, "code": 200}
     return jsonify(returnM), 200
 
+@app.route('/create-project/<id>/<names>/<available>/<username>')
+@cross_origin()
+def create_project(id, names, available, username):
+    nameWords=names.split()
+    oldAvail=available.split()
+    # availableWords = []
+    availableWords = [int(x) for x in oldAvail]
+    print(len(availableWords))
+    print(len(nameWords))
+
+    if len(availableWords) != len(nameWords):
+        badM = {"message": "please give valid sets and values", "code": 404}
+        return jsonify(badM), 200
+    project_document = projectCollection.find_one({"name": id})
+    if project_document:
+        returnM = {"message": "project already exists", "code": 404}
+    else:
+        userCollection.update_one(
+            {'username': username},
+            {'$push': {'projects': id}}
+        )
+        new_document = {"name": id, "users": [username], "sets": nameWords, "available": availableWords, "cap": availableWords}
+        projectCollection.insert_one(new_document)
+        returnM = {"message": "success", "code": 200}
+    return jsonify(returnM), 200
+
+@app.route('/join-project/<id>/<username>')
+@cross_origin()
+def join_old_project(id, username):
+    project_document = projectCollection.find_one({"name": id})
+    user_document = userCollection.find_one({"username": username})
+    if project_document:
+        if user_document and id in user_document.get('projects', []):
+            badM = {"message": "Already In Project", "code": 404}
+            return jsonify(badM), 200
+        else:
+            userCollection.update_one(
+                {'username': username},
+                {'$push': {'projects': id}}
+            )
+            projectCollection.update_one(
+                {'name': id},
+                {'$push': {'users': username}}
+            )
+            badM = {"message": "Successfully Joined", "code": 200}
+            return jsonify(badM), 200
+    else:
+        returnM = {"message": "Project Does Not Exist", "code": 404}
+    return jsonify(returnM), 200
 
 
 

@@ -10,7 +10,7 @@ const grey = '#CCCCCC';
 function ProjectsList({ projects, username}) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <h1>Projects</h1>
+      <h1>{username}'s Projects</h1>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {projects.map((project, index) => (
           <ProjectComponent

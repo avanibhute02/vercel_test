@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import './LoginPage.css';
-import {BrowserRouter, Link} from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 
 
@@ -17,6 +16,7 @@ these are also stateful values with setter methods
 */
 const [submitted, setSubmitted] = useState(false);
 const [error, setError] = useState(false);
+  const [message, setMessage] = useState(''); //input
 
 /*This method handles the change of input
 
@@ -25,7 +25,8 @@ const [error, setError] = useState(false);
     navigate('/signup'); // Navigates to the '/signup' route
   };
     const goToDashboard = (username) => {
-    navigate('/dashboard', {state: {username}}); // Navigates to the '/signup' route
+        navigate('/resource', {state: {username}})
+    // navigate('/dashboard', {state: {username}}); // Navigates to the '/signup' route
   };
 const handleUsername = (e) => {
 	setUsername(e.target.value);
@@ -36,6 +37,14 @@ const handlePassword = (e) => {
 	setPassword(e.target.value);
 	setSubmitted(false);
 };
+const [showPopup, setShowPopup] = useState(false);
+  const openPopup = () => {
+    setShowPopup(true);
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+  };
 
 
 /*This method triggers on submit. It calls the backend endpoint to get last name
@@ -55,12 +64,7 @@ const handleSubmit = (e) => {
   fetch(fetchURL)
 
   .then((response) => response.text())
-  //.then((data) => console.log(data))
   .then(function(data){
-    //data=JSON.parse(data);
-    //   if(typeof data ==='string'){
-    //       console.log("non json data", data);
-    //   }else {
       data=JSON.parse(data);
 
           if (data.code === 200) {
@@ -69,6 +73,8 @@ const handleSubmit = (e) => {
               goToDashboard(username);
           } else {
               setError(true);
+              setMessage(data.error)
+              openPopup()
               setRpassword("response code: " + data.code + " and message received: " + data.error);
           }
       //}
@@ -115,28 +121,6 @@ const errorMessage = () => {
 };
 
 
-// function LoginPage() {
-//     var user;
-//     var password;
-//
-//   //   const [formData, setFormData] = useState({
-//   //   username: '',
-//   //   password: '',
-//   // });
-//
-//   //const { username, password } = formData;
-//     function handleSubmit() {
-//         var u = document.getElementById("username").value;
-//         var p = document.getElementById("password").value;
-//         user=u;
-//         password= p;
-//         document.getElementById("demo").innerHTML = "Username: "+u+"Password:  " +p; //prints out u and p
-//
-//          //
-//          // console.log('Username:', u);
-//          // console.log('Password:', p);
-//
-//     }
 
     return (
         <div className="login-container">
@@ -156,22 +140,23 @@ const errorMessage = () => {
                 </div>
                 <div className="button-group">
                     <button onClick={handleSubmit}>Login</button>
-                    {/*<BrowserRouter>*/}
-                    {/*    <Link to="/signup">Don't have an account?'</Link>*/}
-                    {/*</BrowserRouter>*/}
+
                     <button onClick={goToSignUp}>Create Account</button>
                 </div>
-                {/*<p id="demo"></p>*/}
-                <div className="messages">
-                    {errorMessage()}
-                    {successMessage()}
 
-                </div>
+                {showPopup && (
+                    <div className="popup">
+                      <div className="popup-content">
+                        <span className="close" onClick={closePopup}>
+                          &times;
+                        </span>
+                        <p>{message}</p>
+                      </div>
+                    </div>
+                  )}
 
 
             </div>
         </div>
     );
 }
-
-// export default LoginPage;

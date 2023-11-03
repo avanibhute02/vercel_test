@@ -17,7 +17,7 @@ root.render(
         <Routes>
                 <Route path="/" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
-                <Route path="/createandjoin" element={<ResourceManagementWelcomePage />} />
+                <Route path="/resource" element={<ResourceManagementWelcomePage />} />
                 <Route path="/dashboard" element={<UserDashboardPage />} />
             </Routes>
         </Router>

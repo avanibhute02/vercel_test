@@ -8,6 +8,7 @@ export default function SignupPage() {
     const [username, setUsername] = useState(''); //input
     const [password, setPassword] = useState('');   //input
     const [result, setResult] = useState(''); //backend
+     const [message, setMessage] = useState(''); //input
 
 /*error is the boolean value we use as flag to display either an error response or success response
 submitted is the boolean value we use to indicate if input was valid. It only works for empty string responses for now
@@ -15,6 +16,16 @@ these are also stateful values with setter methods
 */
 const [submitted, setSubmitted] = useState(false);
 const [error, setError] = useState(false);
+
+const [showPopup, setShowPopup] = useState(false);
+  const openPopup = () => {
+    setShowPopup(true);
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+  };
+
 const handleUsername = (e) => {
 	setUsername(e.target.value);
 	setSubmitted(false);
@@ -26,14 +37,15 @@ const handlePassword = (e) => {
 	setSubmitted(false);
 };
 
-const goToDashboard = () => {
-    navigate('/dashboard'); // Navigates to the '/signup' route
+    const goToDashboard = (username) => {
+        navigate('/resource', {state: {username}})
+    // navigate('/dashboard', {state: {username}}); // Navigates to the '/signup' route
   };
-
 const handleSubmit = (e) => {
 	e.preventDefault();
 	if ((username === '')||(password==='') ) {
-	setError(true);
+	    setMessage("Enter Valid Username and Password")
+        openPopup()
 	} else {
 	setSubmitted(true);
   var fetchURL="/signup/" + username+' '+password
@@ -49,18 +61,20 @@ const handleSubmit = (e) => {
       data=JSON.parse(data);
 
           if (data.code === 200) {
-              setResult(data.result)
-              setError(false);
-              goToDashboard();
+              // setResult(data.result)
+              // setError(false);
+              goToDashboard(username);
           } else {
-              setError(true);
-              setResult("response code: " + data.code + " and message received: " + data.error);
+              // setError(true);
+              setMessage(data.error)
+              openPopup()
+              // setResult("response code: " + data.code + " and message received: " + data.error);
           }
       //}
   })
   .catch(function (error){
-      setError(true);
-      setResult("error: "+error.message);
+      // setError(true);
+      // setResult("error: "+error.message);
   });
 
 	}
@@ -124,11 +138,16 @@ const errorMessage = () => {
                 <div className="button1-group">
                     <button onClick={handleSubmit}>Sign Up</button>
                 </div>
-                <div className="messages">
-                    {errorMessage()}
-                    {successMessage()}
-
-                </div>
+                {showPopup && (
+                    <div className="popup">
+                      <div className="popup-content">
+                        <span className="close" onClick={closePopup}>
+                          &times;
+                        </span>
+                        <p>{message}</p>
+                      </div>
+                    </div>
+                  )}
             </div>
         </div>
     );
