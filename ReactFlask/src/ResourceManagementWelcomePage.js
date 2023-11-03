@@ -107,7 +107,7 @@ export default function App(){
 
   return (
     <div className="container">
-      <h1>Welcome User</h1>
+      <h1>Welcome {username}</h1>
       <div className="project-section">
         <div className="new-project">
           <h2>Create New Project</h2>

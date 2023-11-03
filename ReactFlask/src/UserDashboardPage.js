@@ -57,14 +57,14 @@ function ProjectComponent({ project,username}) {
 
   return (
     <div className="bigbox" style={{
-      backgroundColor: isJoin ? '#52a86b' : '',
+      backgroundColor: isJoin ? '#f4f4f4' : '',
       border: `2px solid ${grey}`,
       borderRadius: '0px',
       padding: '10px',
       maxWidth: '50%',
       overflow: 'auto',
     }}>
-      <h2 className="spaces">Project Name {project.Name}</h2>
+      <h2 className="spaces">Project: {project.Name}</h2>
       <p className="spaces">{project.users.join(", ")}</p>
       <div>
         {project.setNames.map((setName, index) => (
@@ -79,7 +79,7 @@ function ProjectComponent({ project,username}) {
           />
         ))}
       </div>
-        <button onClick={changeJoinState}>{joinText}</button>
+        {/*<button onClick={changeJoinState}>{joinText}</button>*/}
 
     </div>
   );
