@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { useLocation } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import './Dashboard.css';
 import {calculateNewValue} from "@testing-library/user-event/dist/utils";
 // import './App.css'
@@ -30,6 +30,12 @@ function ProjectsList({ projects, username, availableArray, capArray}) {
   };
 
 
+  // const buttonStyle=()=>{
+  //   width: '100px',  // Set the desired width
+  //   height: '40px',
+  // }
+
+
   // const updateProjects = (available, cap) => {
   //   const updatedProjects = projects.map((project) => {
   //     if (project.Name === updatedProject.Name) {
@@ -42,7 +48,7 @@ function ProjectsList({ projects, username, availableArray, capArray}) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <h1>{username}'s Projects</h1>
       <h2>HW1: {available[0]}/{cap[0]} HW2: {available[1]}/{cap[1]}</h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {projects.map((project, index) => (
           <ProjectComponent
             key={index}
@@ -289,6 +295,12 @@ function App() {
   const username = location.state && location.state.username;
   const [projects, setProjects]=useState([])
 
+  const navigate = useNavigate();
+  const Logoff =()=>{
+    navigate('/');
+  }
+
+
   const addItemToJoined = (item) => {
     setJoinedArray(prevArray => [...prevArray, item]); // Using spread syntax to create a new array with the new item
   };
@@ -308,6 +320,7 @@ function App() {
 
 
   const getproject = async (project) => {
+
   try {
     const fetchURL = "/projects/" + username + "/" + project;
     const response = await fetch(fetchURL);
@@ -377,6 +390,8 @@ const setup = async () => {
   return (
         <div>
           <ProjectsList projects={projects} username={username} availableArray={available} capArray={cap}/>
+          <button style={{ width: '100px', height: '40px', margin: '10px' }} onClick={(e) => { Logoff(); }} >Logoff</button>
+
        </div>
         );
 
