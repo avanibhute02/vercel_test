@@ -37,7 +37,8 @@ HWSet1={
 
 
 }
-document = {"name": "hw1", "available": 100, "capacity": 100}
+document = {"name": "2", "users": ["sophia"],"sets":[0,0],"available":[100,100], "capacity": [100,100],
+            "description":"this is 2"}
 document1 = {"name": "hw2", "available": 100, "capacity": 100}
 # setsCollection.insert_one(document)
 # setsCollection.insert_one(document1)
@@ -148,63 +149,49 @@ def new_user(username):
 @cross_origin()
 def checkin(project, amount, set):
     project_document = projectCollection.find_one({"name": project})
-    sets = project_document["sets"] #amount checked out
 
-    sets_document = setsCollection.find_one({"name": set})
-    set_available=sets_document["available"]
     if set == "hw1":
         i = 0
     else:
         i = 1
     # i = sets.index(set)
-    curr = project_document["sets"][i]
-    new_set = curr - int(amount)
-    # cap=document["cap"][i]
-    # if(new_avail>cap):
-    #     successC={"result":"more than cap", "code":400}
+    curr = project_document["available"][i]
+    new_available = curr + int(amount)
+    checked = project_document["sets"][i]
+    new_checked=checked-int(amount)
 
-    # else:
-    setsCollection.update_one(
-        sets_document, {"$set": {"available":int(set_available)+int(amount)}}
+    projectCollection.update_one(
+        project_document, {"$set": {"available."+str(i): new_available}}
     )
     projectCollection.update_one(
-        project_document, {"$set": {"sets."+str(i): new_set}}
+        project_document, {"$set": {"sets." + str(i): new_checked}}
     )
-    successC = {"result": new_set,"available":int(set_available)+int(amount),"setAvailable": int(set_available)+int(amount), "code": 200}
+    successC = {"result": "success","available":int(new_available),"checked": new_checked, "code": 200}
     return jsonify(successC), 200
 
 @app.route('/checkout/<project>/<amount>/<set>')
 @cross_origin()
 def checkout(project, amount, set):
     project_document = projectCollection.find_one({"name": project})
-    sets = project_document["sets"]  # amount checked out
 
-    sets_document = setsCollection.find_one({"name": set})
-    set_available = sets_document["available"]
-    if ((set_available - int(amount)) < 0):
-        returnM = {"message": "error", "code": 404}
-        return jsonify(returnM), 200
     if set == "hw1":
         i = 0
     else:
         i = 1
     # i = sets.index(set)
-    curr = project_document["sets"][i]
-    new_set = curr + int(amount)
-    # cap=document["cap"][i]
-    # if(new_avail>cap):
-    #     successC={"result":"more than cap", "code":400}
+    curr = project_document["available"][i]
+    new_available = curr - int(amount)
+    checked = project_document["sets"][i]
+    new_checked = checked + int(amount)
 
-    # else:
-    setsCollection.update_one(
-        sets_document, {"$set": {"available": int(set_available) - int(amount)}}
+    projectCollection.update_one(
+        project_document, {"$set": {"available." + str(i): new_available}}
     )
     projectCollection.update_one(
-        project_document, {"$set": {"sets." + str(i): new_set}}
+        project_document, {"$set": {"sets." + str(i): new_checked}}
     )
-    successC = {"result": new_set, "available": int(set_available) - int(amount),"setAvailable": int(set_available) - int(amount), "code": 200}
+    successC = {"result": "success", "available": int(new_available), "checked": new_checked, "code": 200}
     return jsonify(successC), 200
-
 
 info1={
 
@@ -225,17 +212,14 @@ def setup(username):
     # documents = projectCollection.find
     # info1["name"]=document[]
     user_document = userCollection.find_one({"username": username})
-    hw1_document = setsCollection.find_one({"name":"hw1"})
-    hw2_document = setsCollection.find_one({"name": "hw2"})
-    available=[hw1_document["available"], hw2_document["available"]]
-    cap =[hw1_document["capacity"], hw2_document["capacity"]]
+
     projects = user_document["projects"]
     print(projects)
 
     print(info1)
     print(status)
 
-    returnM = {"info": info1,"status":status,"joinedP":projects,"available":available, "cap":cap, "code": 200}
+    returnM = {"info": info1,"status":status,"joinedP":projects, "code": 200}
     return jsonify(returnM), 200
 
 
@@ -244,17 +228,17 @@ def setup(username):
 def getInfo(username, projectID):
 
     project_document=projectCollection.find_one({"name":projectID})
-    hw1_document=setsCollection.find_one({"name":"hw1"})
-    hw2_document = setsCollection.find_one({"name": "hw2"})
-    hw1_available=hw1_document["available"]
-    hw1_cap=hw1_document["capacity"]
-    hw2_available=hw2_document["available"]
-    hw2_cap=hw2_document["capacity"]
+    # hw1_document=setsCollection.find_one({"name":"hw1"})
+    # hw2_document = setsCollection.find_one({"name": "hw2"})
+    # hw1_available=hw1_document["available"]
+    # hw1_cap=hw1_document["capacity"]
+    # hw2_available=hw2_document["available"]
+    # hw2_cap=hw2_document["capacity"]
 
     info = {"users": project_document["users"],
             # "sets": project_document["sets"], #amount checked out of each set
-            "available": [hw1_available, hw2_available],
-            "cap": [hw1_cap, hw2_cap],
+            "available": project_document["available"],
+            "cap": project_document["capacity"],
             "checked": project_document["sets"],
             "description": project_document["description"]
             }
@@ -274,7 +258,7 @@ def create_project(id,description, username):
             {'username': username},
             {'$push': {'projects': id}}
         )
-        new_document = {"name": id, "users": [username], "sets": [0,0], "description": description}
+        new_document = {"name": id, "users": [username], "sets": [0,0], "available":[100,100], "capacity":[100,100], "description": description}
         projectCollection.insert_one(new_document)
         returnM = {"message": "success", "code": 200}
     return jsonify(returnM), 200
